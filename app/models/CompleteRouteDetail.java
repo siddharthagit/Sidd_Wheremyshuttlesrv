@@ -8,7 +8,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.PostLoad;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.google.gson.annotations.Expose;
 
@@ -19,6 +21,9 @@ import play.db.jpa.Model;
 @Table(name="cas_completeroute")
 public class CompleteRouteDetail extends Model{
 	
+	@Expose 
+	@Transient
+	private Long routeDetailsId;
 	
 	@Expose
 	private String routeName;
@@ -73,5 +78,11 @@ public class CompleteRouteDetail extends Model{
 		return "RouteDetails"+ getId() +" - "+getRouteName();
 	}
 	
+	//etra methods
+	
+	@PostLoad
+	protected void initSomeTransientValues() {
+		this.routeDetailsId = getId();
+	}
 	
 }

@@ -31,3 +31,4 @@ GET /api/v1/User/subscriptions/{userId}  controllers.ApplicationApiV1.getUserRou
 
 ##Checkin Related
 GET /api/v1/User/checkin/{userId}  controllers.ApplicationApiV1.getUserLastCheckinLocation(userId: Long)
+POST /api/v1/User/checkin  controllers.ApplicationApiV1.checkinUser()
