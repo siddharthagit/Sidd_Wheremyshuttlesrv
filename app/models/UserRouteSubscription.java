@@ -5,6 +5,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.google.gson.annotations.Expose;
+
 import play.db.jpa.Blob;
 import play.db.jpa.Model;
 
@@ -12,7 +14,12 @@ import play.db.jpa.Model;
 @Table(name="cas_user_route_subscription")
 public class UserRouteSubscription extends Model{
 	
+	@Expose
+	@ManyToOne
 	private User user;
+	
+	@Expose 
+	@ManyToOne
 	private CompleteRouteDetail routeDetails;
 	
 	public User getUser() {

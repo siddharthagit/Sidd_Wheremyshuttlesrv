@@ -10,6 +10,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import com.google.gson.annotations.Expose;
+
 import play.db.jpa.Blob;
 import play.db.jpa.Model;
 
@@ -17,9 +19,16 @@ import play.db.jpa.Model;
 @Table(name="cas_completeroute")
 public class CompleteRouteDetail extends Model{
 	
+	
+	@Expose
 	private String routeName;
+	
+	@Expose
 	private String startTime;
+	
+	@Expose
 	private String endTime;
+	
 	
 	@OneToMany(mappedBy="route")
 	private List<RouteStop> routeStops;

@@ -5,6 +5,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.google.gson.annotations.Expose;
+
 import play.db.jpa.Blob;
 import play.db.jpa.Model;
 
@@ -12,9 +14,15 @@ import play.db.jpa.Model;
 @Table(name="cas_users")
 public class User extends Model{
 	
+	@Expose
 	private String userName;
+	
 	private String userPMFKey;
+	
+	@Expose
 	private String userEmail;
+	
+	@Expose
 	private Boolean notification;
 	
 	public String getUserName() {
@@ -42,6 +50,9 @@ public class User extends Model{
 		this.notification = notification;
 	}
 	
-	
+	@Override
+	public String toString() {
+		return getUserPMFKey() + " - " + getUserEmail() + " - " + getUserName();
+	}
 	
 }
