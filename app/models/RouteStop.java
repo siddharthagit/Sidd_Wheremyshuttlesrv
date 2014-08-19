@@ -8,6 +8,8 @@ import javax.persistence.Table;
 
 import org.joda.time.LocalTime;
 
+import com.google.gson.annotations.Expose;
+
 import play.db.jpa.Blob;
 import play.db.jpa.Model;
 
@@ -19,10 +21,11 @@ public class RouteStop extends Model{
 	@JoinColumn(name="routedetails_id",referencedColumnName="id")
 	private CompleteRouteDetail route;
 	
-
+	@Expose
 	@OneToOne
 	private Stop currentStop;
 	
+	@Expose
 	private String eta;
 	
 	public String getEta() {

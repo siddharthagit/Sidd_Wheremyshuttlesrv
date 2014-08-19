@@ -55,9 +55,62 @@ public class ApplicationApiV1 extends Controller {
 		renderJSON(gson.toJson(lastCheckinLoc));
 	}
 	
+	
+	public static void getCompleteRouteDetailStatic(Long routeId) {
+		Logger.info("getUserRouteDetailsStatic " + routeId);
+		
+		CompleteRouteDetail routeDetails = CompleteRouteDetail.findById(routeId);
+		
+		renderJSON(gson.toJson(routeDetails));
+	}
+	
+	public static void getCompleteRouteDetailList() {
+		Logger.info("getUserRouteDetailsStatic ");
+		
+		List<CompleteRouteDetail> routeDetails = CompleteRouteDetail.findAll();
+		
+		renderJSON(gson.toJson(routeDetails));
+	}
+	
+	
+	
+	/**
+	 * For a Route get all the Stops with gps Tag, number of checkin in each stop
+	 * It should return
+	 * Stops[name,lat/lon,eta,checkins]
+	 * Dynamic[] 
+	 * 
+	 * from the userid(email ID) get all route details and get the stops and checkins
+	 */
+	
+	public static void getMapStaticLocationsForaRoute(String emailId) {
+		Logger.info("getMapStaticLocationsForaRoute" + emailId);
+		
+		Query query = JPA.em().createQuery("select s from User s where s.userEmail ='" +emailId+"'");
+	    User dbUser = (User)query.getSingleResult();
+	    Long dbUserId = dbUser.getId();
+	    Logger.info("getMapStaticLocationsForaRoute userId from db " + dbUserId);
+	    
+	    //get the first subscription
+	    Query subsriptionQ = JPA.em().createQuery("select s from UserRouteSubscription s where s.user.id=" +dbUserId);
+	    UserRouteSubscription dbUserSubscription = (UserRouteSubscription)subsriptionQ.getSingleResult();
+	    
+	    Long dbUserRouteDetailsId = dbUserSubscription.getRouteDetails().getId();
+	    
+	    Logger.info("getMapStaticLocationsForaRoute dbUserSubId from db " + dbUserRouteDetailsId);
+	    
+	    
+	    
+	    
+		//renderJSON(gson.toJson(lastCheckinLoc));
+	}
+	
+	
 
 	//POST
-	
+	/**
+	 * Post a User Check in Location to System
+	 */
 	public static void checkinUser() {
 		Logger.info("checkinUser" + request);
 		UserCheckin myModel = new GsonBuilder().create().fromJson(new InputStreamReader(request.body), UserCheckin.class);
@@ -84,7 +137,10 @@ public class ApplicationApiV1 extends Controller {
 		myModel.setRouteDetails(dbCompleteRouteDetail);
 		myModel.save();
 		
+		myModel.refresh();
 		Logger.info("checkinUser " + myModel.getId());
+		
+		renderJSON(gson.toJson(myModel));
 		
 	}
 

@@ -34,7 +34,10 @@ public class CompleteRouteDetail extends Model{
 	@Expose
 	private String endTime;
 	
+	private int direction;
+	private String directionStr;
 	
+	@Expose
 	@OneToMany(mappedBy="route")
 	private List<RouteStop> routeStops;
 
@@ -73,16 +76,40 @@ public class CompleteRouteDetail extends Model{
 	}
 	
 	
-	@Override
-	public String toString() {
-		return "RouteDetails"+ getId() +" - "+getRouteName();
+
+	public Long getRouteDetailsId() {
+		return routeDetailsId;
+	}
+
+	public void setRouteDetailsId(Long routeDetailsId) {
+		this.routeDetailsId = routeDetailsId;
+	}
+
+	public int getDirection() {
+		return direction;
+	}
+
+	public void setDirection(int direction) {
+		this.direction = direction;
 	}
 	
 	//etra methods
 	
+
+	@Override
+	public String toString() {
+		return "##"+ getId() +" - "+getRouteName() + " " + getDirectionStr();
+	}
+	
+	public String getDirectionStr(){
+		if(getDirection() ==0) return "To Office";
+		else return "From Office";
+	}
+	
 	@PostLoad
 	protected void initSomeTransientValues() {
 		this.routeDetailsId = getId();
+		this.directionStr = getDirectionStr();
 	}
 	
 }

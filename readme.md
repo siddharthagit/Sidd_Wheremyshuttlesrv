@@ -1,5 +1,10 @@
 
+@@@@@@@@@@@@@@@@@@@@
+ Play Commands 
 
+ play dependencies
+ play install db-1.1.1
+@@@@@@@@@@@@@@@@@@@@
 
 
 Tables:::
@@ -45,3 +50,22 @@ how to populate map
 db=mysql://root@localhost/wheremyshuttlesrv_dev
 
 create database wheremyshuttlesrv_dev
+
+
+!-------------------------------------------- Consuming API ----------------------------------------------------------------!
+
+1) Post userChecking
+http://localhost:9000/api/v1/User/checkin
+
+Content-Type : application/json
+
+{
+"checkinTime": "Aug 26, 2014 12:10:10 AM",
+"checkinLocationLat": 2001,
+"checkinLocationLon": 2002,
+"routeDetailsId": 1,
+"checkinId": 1,
+"userId": 1,
+"userEmailId": "siddhartha.bhattacharjee@ca.com"
+ 
+}
