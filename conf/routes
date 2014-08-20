@@ -23,7 +23,10 @@ GET     /public/                                staticDir:public
 ##User Related
 GET /api/v1/User/details/all   controllers.ApplicationApiV1.getUserList()
 GET /api/v1/User/details/{userId}   controllers.ApplicationApiV1.getUserDetails(userId: Long)
-GET /api/v1/User/subscriptions/{userId}  controllers.ApplicationApiV1.getUserRouteSubsciption(userId: Long)
+GET /api/v1/User/subscriptions/{userEmailID}  controllers.ApplicationApiV1.getUserRouteSubsciption(userEmailID: String)
+POST /api/v1/User/adduser  controllers.ApplicationApiV1.addUser()
+POST /api/v1/User/adduserroutes  controllers.ApplicationApiV1.addUserRoutes()
+
 
 ##User Checkin Related
 GET /api/v1/User/getcheckins/{userId}  controllers.ApplicationApiV1.getUserLastCheckinLocation(userId: Long)
@@ -33,6 +36,7 @@ POST /api/v1/User/checkin  controllers.ApplicationApiV1.checkinUser()
 
 ##RouteDetails Related
 GET /api/v1/User/completeroutedetails  controllers.ApplicationApiV1.getCompleteRouteDetailList()
-
 GET /api/v1/User/completeroutedetails/{routeId}  controllers.ApplicationApiV1.getCompleteRouteDetailStatic(routeId: Long)
 
+##Map Realted
+GET /api/v1/User/getmapdetails/{userEmailID}  controllers.ApplicationApiV1.getCompleteMapDetails({userEmailID : String})

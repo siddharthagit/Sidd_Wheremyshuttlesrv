@@ -6,6 +6,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 import com.google.gson.annotations.Expose;
 
@@ -13,7 +14,13 @@ import play.db.jpa.Blob;
 import play.db.jpa.Model;
 
 @Entity
-@Table(name="cas_user_route_subscription")
+//@Table(name="cas_user_route_subscription")
+
+@Table(
+	    name="cas_user_route_subscription", 
+	    uniqueConstraints=
+	        @UniqueConstraint(columnNames={"routeDetails_id", "user_id"})
+	)
 public class UserRouteSubscription extends Model{
 	
 	
@@ -24,6 +31,13 @@ public class UserRouteSubscription extends Model{
 	@Expose 
 	@ManyToOne
 	private CompleteRouteDetail routeDetails;
+	
+	
+	//For Rest Post
+	
+	
+	
+	
 	
 	public User getUser() {
 		return user;
