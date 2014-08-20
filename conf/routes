@@ -26,7 +26,7 @@ GET /api/v1/User/details/{userId}   controllers.ApplicationApiV1.getUserDetails(
 GET /api/v1/User/subscriptions/{userId}  controllers.ApplicationApiV1.getUserRouteSubsciption(userId: Long)
 
 ##User Checkin Related
-GET /api/v1/User/checkin/{userId}  controllers.ApplicationApiV1.getUserLastCheckinLocation(userId: Long)
+GET /api/v1/User/getcheckins/{userId}  controllers.ApplicationApiV1.getUserLastCheckinLocation(userId: Long)
 POST /api/v1/User/checkin  controllers.ApplicationApiV1.checkinUser()
 
 

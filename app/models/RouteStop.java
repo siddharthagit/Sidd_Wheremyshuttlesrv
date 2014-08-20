@@ -4,7 +4,9 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.persistence.PostLoad;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.joda.time.LocalTime;
 
@@ -22,11 +24,30 @@ public class RouteStop extends Model{
 	private CompleteRouteDetail route;
 	
 	@Expose
+	@Transient
+	private String stopName;
+	
+	@Expose
+	@Transient
+	private String stopDetails;
+	
+	@Expose
+	@Transient
+	private Double locationLat;
+	
+	@Expose
+	@Transient
+	private Double locationLon;
+	
+	//@Expose
 	@OneToOne
 	private Stop currentStop;
 	
-	@Expose
+	@Expose()
 	private String eta;
+	
+	@Expose()
+	private String cta;
 	
 	public String getEta() {
 		return eta;
@@ -52,5 +73,15 @@ public class RouteStop extends Model{
 		this.route = route;
 	}
 
+	//extra methods
+	
+	@PostLoad
+	protected void initSomeTransientValues() {
+		this.stopName = getCurrentStop().getStopName();
+		this.stopDetails = getCurrentStop().getStopDetails();
+		this.locationLat = getCurrentStop().getLocationLat();
+		this.locationLon = getCurrentStop().getLocationLon();
+		this.cta = this.eta;
+	}
 	
 }
