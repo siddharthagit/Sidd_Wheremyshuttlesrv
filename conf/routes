@@ -4,6 +4,7 @@
 
 # Home page
 GET     /                                       Application.index
+GET     /crud/index                              Application.index
 
 # Ignore favicon requests
 GET     /favicon.ico                            404
