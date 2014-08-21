@@ -3,4 +3,3 @@
 require:
     - play
     - play -> crud
-    - play ->db-1.1.1
