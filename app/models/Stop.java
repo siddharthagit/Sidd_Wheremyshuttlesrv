@@ -35,7 +35,7 @@ public class Stop extends Model{
 	
 	@Expose
 	@Transient 
-	private Long totalCheckin;
+	private Long totalCheckin = 1L;
 	
 	public String getStopName() {
 		return stopName;
@@ -63,6 +63,14 @@ public class Stop extends Model{
 	}
 	
 	
+	
+	
+	public Long getTotalCheckin() {
+		return totalCheckin;
+	}
+	public void setTotalCheckin(Long totalCheckin) {
+		this.totalCheckin = totalCheckin;
+	}
 	@PostLoad
 	protected void initSomeTransientValues() {
 		this.totalCheckin = getNumberofCheckinsForThisLocation(this);

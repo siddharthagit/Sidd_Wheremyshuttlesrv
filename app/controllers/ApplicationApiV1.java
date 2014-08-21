@@ -2,6 +2,7 @@ package controllers;
 
 import java.io.InputStreamReader;
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -12,7 +13,10 @@ import javax.persistence.Query;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
 
 import dto.CompleteRouteDetailsDTO;
 import dto.UserDTO;
@@ -20,6 +24,7 @@ import dto.UserRouteSubscriptionDTO;
 import dto.UserRoutesPost;
 
 import models.CompleteRouteDetail;
+import models.RouteStop;
 import models.Stop;
 import models.User;
 import models.UserCheckin;
@@ -105,6 +110,7 @@ public class ApplicationApiV1 extends Controller {
 		Logger.info("getUserRouteDetailsStatic " + routeId);
 		
 		CompleteRouteDetail routeDetails = CompleteRouteDetail.findById(routeId);
+		getLatestTimingsFromGoogle(routeDetails);
 		
 		renderJSON(gson.toJson(routeDetails));
 	}
@@ -113,6 +119,7 @@ public class ApplicationApiV1 extends Controller {
 		Logger.info("getUserRouteDetailsStatic ");
 		
 		List<CompleteRouteDetail> routeDetails = CompleteRouteDetail.findAll();
+		
 		
 		renderJSON(gson.toJson(routeDetails));
 	}
@@ -142,7 +149,7 @@ public class ApplicationApiV1 extends Controller {
 		Query query = JPA.em().createQuery("select s from User s where s.userEmail ='"+userEmailID+"'");
 	    User dbUser = (User)query.getSingleResult();
 	    Long dbUserId = dbUser.getId();
-	    Logger.info("getMapStaticLocationsForaRoute userId from db " + dbUserId);
+	    Logger.info("getCompleteMapDetails userId from db " + dbUserId);
 	    
 	    //get the first subscription
 	    //TODO Need to change the logic to get the route based on lookup time
@@ -153,49 +160,140 @@ public class ApplicationApiV1 extends Controller {
 	    	dbUserRouteDetailsId = dbUserSubscription.getRouteDetails().getId();
 	    }
 	    catch(javax.persistence.NoResultException e){
-	    	Logger.info("getMapStaticLocationsForaRoute User is not suscribed to any route " + dbUserId);
+	    	Logger.info("getCompleteMapDetails User is not suscribed to any route " + dbUserId);
 	    }
 	    
 	    
-	    Logger.info("getMapStaticLocationsForaRoute dbUserSubId from db " + dbUserRouteDetailsId);
+	    Logger.info("getCompleteMapDetails dbUserSubId from db " + dbUserRouteDetailsId);
 	    
 	    if(dbUserRouteDetailsId == null){
 	    	renderJSON(gson.toJson("User is not subscribed to any route"));
 	    }
 	    else{
 	    	CompleteRouteDetail routeDetails = CompleteRouteDetail.findById(dbUserRouteDetailsId);
-	    	//Ok got the routeDetails now need to update the cta based on Checkins
-		    //Get last checkin for this route get the checkin time
 	    	
-	    	Calendar today = Calendar.getInstance();
-	    	today.set(Calendar.HOUR_OF_DAY, 6); // same for minutes and seconds
-	    	Date todayDateMorning = today.getTime();
-	    	
-	    	today.set(Calendar.HOUR_OF_DAY, 18); // same for minutes and seconds
-	    	Date todayDateAfternoon = today.getTime();
-	    	
-	    	/**
-	    	 * Query query = JPA.em().createNativeQuery(sql);
-		BigInteger totalCheckinsBig =  ((BigInteger) query.getSingleResult()); 
-		totalCheckins = totalCheckinsBig.longValue();
-	    	 */
-	    	
-	    	
-	    	String sql3 = "select s from UserCheckin s where s.completeroute_id="+ dbUserRouteDetailsId+
-	    			" and s.checkinTime between "+todayDateMorning+ " AND "+todayDateAfternoon+" order by s.checkinTime desc" ;
-	    	Query query3 = JPA.em().createNativeQuery(sql3);
-	    	
-	    	/*UserCheckin lastCheckinLoc = UserCheckin.find(sql)
-	    			.setParameter("dbUserRouteDetailsId", dbUserRouteDetailsId)
-	    			.setParameter("startDate", todayDateMorning)
-	    			.setParameter("endDate", todayDateAfternoon)
-	    			.first();*/
+	    	getLatestTimingsFromGoogle(routeDetails);
 	    	
 	    	renderJSON(gson.toJson(routeDetails));
 	    }
 	    
 		//renderJSON(gson.toJson(lastCheckinLoc));
 	}
+
+	private static void getLatestTimingsFromGoogle(CompleteRouteDetail routeDetails) {
+		try{
+			
+			List<RouteStop> listOfStops = routeDetails.getRouteStops();
+	    	
+	    	RouteStop originStop = listOfStops.get(0);
+	    	
+	    	String param1 = getStringStopLocation(originStop);
+	    	String param2 = getStringStopLocations(listOfStops);
+	    	
+		JsonElement json = MapAPIUtil.getRealtimeDate(param1,param2);
+		JsonObject  jobject = json.getAsJsonObject();
+		//jobject = jobject.getAsJsonObject("data");
+		
+		JsonArray rowsArray = jobject.getAsJsonArray("rows");
+		JsonArray elementsArray = (rowsArray.get(0)).getAsJsonObject().getAsJsonArray("elements");
+		
+		List<String> updatedTime = new ArrayList<String>();
+		for(int i = 0; i<elementsArray.size(); i ++){
+			String obj1 = elementsArray.get(i).getAsJsonObject().getAsJsonObject("duration").get("text").toString();
+			
+			int index = obj1.indexOf(" mins");
+			String parsedobj1 = obj1.substring(1, index);
+			
+			updatedTime.add(parsedobj1);
+			
+			Logger.info("getCompleteMapDetails time from google" + obj1);
+		}
+		
+		
+		Logger.info("getCompleteMapDetails updatedTime size ........... " + updatedTime.size());
+		Logger.info("getCompleteMapDetails listOfStops size ........... " + listOfStops.size());
+		
+		int i = 0;
+		for(RouteStop s : listOfStops){
+			
+			if(i>0){
+				String cta = s.getCta();
+				cta = updatedTime.get(i-1).trim();
+				cta = cta.replace("\\", "");
+				cta = cta.trim();
+				Logger.info("getCompleteMapDetails cta.trim():"+cta+"ccccccc");
+				
+			
+				int ctaInt = Integer.parseInt(cta);
+				Calendar now = Calendar.getInstance();
+				SimpleDateFormat df = new SimpleDateFormat("hh:mm aa");
+				now.add(Calendar.MINUTE, ctaInt);
+				String newCTA = df.format(now.getTime());
+				s.setCta(newCTA);
+			}
+			
+			i ++;
+			
+		}
+		}catch(Exception e){
+			Logger.info("getCompleteMapDetails Cannont Collect Data from Google, not setting CTA");
+		}
+	}
+	
+	
+	private static String getStringStopLocation(RouteStop stop){
+		return stop.getLocationLat() +","+stop.getLocationLon();
+	}
+	
+	private static String getStringStopLocations(List<RouteStop> stop){
+		StringBuilder result = new StringBuilder();
+		int i = 0;
+		for(RouteStop s : stop){
+			if (i>0){
+			result.append(getStringStopLocation(s)).append("|");
+			}
+			i++;
+		}
+		return result.toString();
+	}
+	
+	
+	
+	
+	private void doStep1(){
+		//Ok got the routeDetails now need to update the cta based on Checkins
+	    //Get last checkin for this route get the checkin time
+    	
+    	Calendar today = Calendar.getInstance();
+    	today.set(Calendar.HOUR_OF_DAY, 6); // same for minutes and seconds
+    	Date todayDateMorning = today.getTime();
+    	
+    	today.set(Calendar.HOUR_OF_DAY, 18); // same for minutes and seconds
+    	Date todayDateAfternoon = today.getTime();
+    	
+    	/**
+    	 * Query query = JPA.em().createNativeQuery(sql);
+	BigInteger totalCheckinsBig =  ((BigInteger) query.getSingleResult()); 
+	totalCheckins = totalCheckinsBig.longValue();
+    	 */
+    	
+    	
+    	//String sql3 = "select s from UserCheckin s where s.completeroute_id="+ dbUserRouteDetailsId+
+    //			" and s.checkinTime between "+todayDateMorning+ " AND "+todayDateAfternoon+" order by s.checkinTime desc" ;
+    	//Query query3 = JPA.em().createNativeQuery(sql3);
+    	
+    	//setParameter(arg0, arg1);
+    	
+    	//query3.getSingleResult(); 
+    	/*UserCheckin lastCheckinLoc = UserCheckin.find(sql)
+    			.setParameter("dbUserRouteDetailsId", dbUserRouteDetailsId)
+    			.setParameter("startDate", todayDateMorning)
+    			.setParameter("endDate", todayDateAfternoon)
+    			.first();*/
+    	
+    	
+	}
+	
 	
 	
 

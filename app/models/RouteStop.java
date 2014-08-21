@@ -49,6 +49,9 @@ public class RouteStop extends Model{
 	@Expose()
 	private String cta;
 	
+	@Expose()
+	private Long totalCheckin = 1L;
+	
 	public String getEta() {
 		return eta;
 	}
@@ -73,8 +76,54 @@ public class RouteStop extends Model{
 		this.route = route;
 	}
 
+	
+	
+	public String getStopName() {
+		return stopName;
+	}
+
+	public void setStopName(String stopName) {
+		this.stopName = stopName;
+	}
+
+	public String getStopDetails() {
+		return stopDetails;
+	}
+
+	public void setStopDetails(String stopDetails) {
+		this.stopDetails = stopDetails;
+	}
+
+	public Double getLocationLat() {
+		return locationLat;
+	}
+
+	public void setLocationLat(Double locationLat) {
+		this.locationLat = locationLat;
+	}
+
+	public Double getLocationLon() {
+		return locationLon;
+	}
+
+	public void setLocationLon(Double locationLon) {
+		this.locationLon = locationLon;
+	}
+
+	public String getCta() {
+		return cta;
+	}
+
+	public void setCta(String cta) {
+		this.cta = cta;
+	}
+	
+	
+	
 	//extra methods
 	
+	
+
 	@PostLoad
 	protected void initSomeTransientValues() {
 		this.stopName = getCurrentStop().getStopName();
@@ -82,6 +131,7 @@ public class RouteStop extends Model{
 		this.locationLat = getCurrentStop().getLocationLat();
 		this.locationLon = getCurrentStop().getLocationLon();
 		this.cta = this.eta;
+		this.totalCheckin = getCurrentStop().getTotalCheckin();
 	}
 	
 }
